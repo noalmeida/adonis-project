@@ -33,7 +33,7 @@ export default class MomentsController {
         }
     }
     public async index() {
-        const moment = await Moment.all();
+        const moment = await Moment.query().preload('comments');
         return {
             message: "Registro retornado com sucesso",
             data: moment
@@ -42,7 +42,9 @@ export default class MomentsController {
     public async show({ params }: HttpContextContract) {
         let moment: any = '';
         try {
-            moment = await Moment.findByOrFail('id', params.id);
+            moment = await (await Moment.findByOrFail('id', params.id))
+            await moment.load('comments');
+            
         } catch (error) {
             throw new EmptyException("Não Existe registro para esse ID no banco de dados", 404, 'ERRO_CODE_EMPTY_DB')
         }
